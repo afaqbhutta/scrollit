@@ -8,13 +8,13 @@ from datetime import timedelta
 from azure.storage.blob import BlobServiceClient
 from werkzeug.utils import secure_filename
 from uuid import uuid4
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from flask_migrate import Migrate
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import IntegrityError
 
 # to fethc the secret keys from the .env
-load_dotenv()
+# load_dotenv()
 
 
 # Azure Blob Storage settings
