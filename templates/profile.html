@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block title %}Profile | Scroll'It{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-gray-900 rounded-2xl shadow-lg p-6 flex flex-col gap-8">
+  <!-- Profile Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div class="flex-shrink-0 relative">
+      {% if user.avatar_url %}
+        <img src="{{ user.avatar_url }}" alt="Profile Picture" class="w-20 h-20 rounded-full object-cover border-4 border-accent">
+      {% else %}
+        <div class="w-20 h-20 rounded-full bg-accent flex items-center justify-center text-3xl font-bold text-white">{{ user.username[0]|upper }}</div>
+      {% endif %}
+      <button class="absolute bottom-0 right-0 bg-gray-800 hover:bg-accent2 text-white rounded-full p-1 border-2 border-gray-900" onclick="document.getElementById('editProfileModal').classList.remove('hidden')">
+        <span class="sr-only">Edit</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-accent"><path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" /><path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" /></svg>
+      </button>
+    </div>
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold text-white">{{ user.username }}</h2>
+      <div class="text-gray-400 text-sm mb-1">{{ user.email }}</div>
+      <div class="text-gray-300 text-sm italic">{{ user.bio or 'No bio yet.' }}</div>
+      <button class="mt-3 px-4 py-1 rounded-lg bg-accent hover:bg-accent2 text-white font-semibold transition" onclick="document.getElementById('editProfileModal').classList.remove('hidden')">Edit Profile</button>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div>
+    <div class="flex border-b border-gray-700 mb-4">
+      <button class="tab-btn px-4 py-2 text-white font-semibold focus:outline-none border-b-2 border-accent" data-tab="my-videos">My Videos</button>
+      <button class="tab-btn px-4 py-2 text-gray-400 hover:text-white font-semibold focus:outline-none" data-tab="liked-videos">Liked Videos</button>
+      <button class="tab-btn px-4 py-2 text-gray-400 hover:text-white font-semibold focus:outline-none" data-tab="settings">Settings</button>
+    </div>
+    <!-- My Videos Tab -->
+    <div class="tab-content" id="my-videos">
+      <div class="flex flex-col gap-4">
+        {% for entry in user_videos %}
+          {% set video = entry.video %}
+          <div class="bg-gray-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-center">
+            <div class="w-full sm:w-40 aspect-video bg-black rounded-lg overflow-hidden flex-shrink-0">
+              <video controls class="w-full h-full object-contain bg-black">
+                <source src="{{ video.blob_url }}" type="video/mp4">
+              </video>
+            </div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div class="font-bold text-white">{{ video.title }}</div>
+              <div class="text-xs text-gray-400">Genre: {{ video.genre or 'N/A' }}</div>
+              <div class="flex gap-4 text-xs text-gray-400 mt-1">
+                <span><svg class="inline w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" /></svg> {{ entry.views or 0 }} views</span>
+                <span><svg class="inline w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z" /></svg> {{ entry.likes or 0 }} likes</span>
+                <span><svg class="inline w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 0 1-.814 1.686.75.75 0 0 0 .44 1.223ZM8.25 10.875a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25ZM10.875 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Z" clip-rule="evenodd" /></svg> {{ entry.comments or 0 }} comments</span>
+              </div>
+              <div class="flex gap-2 mt-2">
+                <form method="POST" action="/edit_video" class="inline">
+                  <input type="hidden" name="video_id" value="{{ video.id }}">
+                  <button type="submit" class="px-3 py-1 rounded bg-accent hover:bg-accent2 text-white text-xs font-semibold transition">
+                    <span class="sr-only">Edit</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-accent"><path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" /><path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" /></svg>
+                  </button>
+                </form>
+                <form method="POST" action="/delete_video" class="inline">
+                  <input type="hidden" name="video_id" value="{{ video.id }}">
+                  <button type="submit" class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition" onclick="deleteVideo(this, '{{ video.id }}')">
+                    <span class="sr-only">Delete</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-white"><path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" /></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-gray-500 text-sm">No videos uploaded yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Liked Videos Tab -->
+    <div class="tab-content hidden" id="liked-videos">
+      <div class="flex flex-col gap-4">
+        {% for entry in liked_videos %}
+          {% set video = entry.video %}
+          <div class="bg-gray-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-center">
+            <div class="w-full sm:w-40 aspect-video bg-black rounded-lg overflow-hidden flex-shrink-0">
+              <video controls class="w-full h-full object-contain bg-black">
+                <source src="{{ video.blob_url }}" type="video/mp4">
+              </video>
+            </div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div class="font-bold text-white">{{ video.title }}</div>
+              <div class="text-xs text-gray-400">Genre: {{ video.genre or 'N/A' }}</div>
+              <div class="flex gap-4 text-xs text-gray-400 mt-1">
+                <span><svg class="inline w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" /></svg> {{ entry.views or 0 }} views</span>
+                <span><svg class="inline w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z" /></svg> {{ entry.likes or 0 }} likes</span>
+                <span><svg class="inline w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 0 1-.814 1.686.75.75 0 0 0 .44 1.223ZM8.25 10.875a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25ZM10.875 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Z" clip-rule="evenodd" /></svg> {{ entry.comments or 0 }} comments</span>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-gray-500 text-sm">No liked videos yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Settings Tab -->
+    <div class="tab-content hidden" id="settings">
+      <div class="flex flex-col gap-4">
+        <button class="w-full py-2 rounded-lg bg-accent hover:bg-accent2 text-white font-semibold text-lg transition" onclick="document.getElementById('editProfileModal').classList.remove('hidden')">Edit Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Edit Profile Modal (hidden by default) -->
+<div id="editProfileModal" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center hidden">
+  <div class="bg-gray-900 rounded-2xl shadow-lg p-6 w-full max-w-md flex flex-col gap-4 relative">
+    <button class="absolute top-2 right-2 text-gray-400 hover:text-accent text-2xl" onclick="this.closest('#editProfileModal').classList.add('hidden')">&times;</button>
+    <h3 class="text-xl font-bold text-white mb-2">Edit Profile</h3>
+    <form id="editProfileForm" enctype="multipart/form-data" class="flex flex-col gap-3">
+      <label class="text-sm font-semibold">Profile Picture</label>
+      <div class="flex items-center gap-3">
+        <img id="profileAvatarPreview" src="{{ user.avatar_url or '' }}" alt="Profile Picture" class="w-14 h-14 rounded-full object-cover border-2 border-accent" style="display: {{ 'block' if user.avatar_url else 'none' }};">
+        <div id="profileAvatarInitial" class="w-14 h-14 rounded-full bg-accent flex items-center justify-center text-xl font-bold text-white" style="display: {{ 'none' if user.avatar_url else 'flex' }};">{{ user.username[0]|upper }}</div>
+        <input type="file" name="avatar" accept="image/*" class="text-sm text-gray-300" onchange="previewAvatar(this)">
+      </div>
+      <label class="text-sm font-semibold">Username</label>
+      <input type="text" name="username" value="{{ user.username }}" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+      <label class="text-sm font-semibold">Email</label>
+      <input type="email" name="email" value="{{ user.email }}" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+      <label class="text-sm font-semibold">Bio</label>
+      <textarea name="bio" rows="2" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">{{ user.bio }}</textarea>
+      <button type="submit" class="w-full py-2 rounded-lg bg-accent hover:bg-accent2 text-white font-semibold text-lg transition mt-2">Save Changes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+// Tab switching logic
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('border-accent', 'text-white'));
+    btn.classList.add('border-accent', 'text-white');
+    tabContents.forEach(tc => tc.classList.add('hidden'));
+    document.getElementById(btn.dataset.tab).classList.remove('hidden');
+  });
+});
+if (tabContents.length) {
+  tabContents.forEach(tc => tc.classList.add('hidden'));
+  document.getElementById('my-videos').classList.remove('hidden');
+  tabBtns.forEach(b => b.classList.remove('border-accent', 'text-white'));
+  tabBtns[0].classList.add('border-accent', 'text-white');
+}
+// Profile edit AJAX
+const editProfileForm = document.getElementById('editProfileForm');
+if (editProfileForm) {
+  editProfileForm.onsubmit = function(e) {
+    e.preventDefault();
+    const formData = new FormData(editProfileForm);
+    const saveBtn = editProfileForm.querySelector('button[type="submit"]');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    fetch('/edit_profile', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Changes';
+      if (data.success) {
+        document.querySelector('h2.text-2xl').textContent = data.username;
+        document.querySelector('.text-gray-400.text-sm.mb-1').textContent = data.email;
+        document.querySelector('.text-gray-300.text-sm.italic').textContent = data.bio || 'No bio yet.';
+        if (data.avatar_url) {
+          document.getElementById('profileAvatarPreview').src = data.avatar_url;
+          document.getElementById('profileAvatarPreview').style.display = 'block';
+          document.getElementById('profileAvatarInitial').style.display = 'none';
+        }
+        document.getElementById('editProfileModal').classList.add('hidden');
+        showToast('Profile updated!', 'success');
+      } else {
+        showToast(data.error || 'Failed to update profile', 'error');
+      }
+    });
+  };
+}
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('profileAvatarPreview').src = e.target.result;
+      document.getElementById('profileAvatarPreview').style.display = 'block';
+      document.getElementById('profileAvatarInitial').style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+// Video delete AJAX
+function deleteVideo(btn, videoId) {
+  if (!confirm('Delete this video?')) return;
+  fetch('/delete_video', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'video_id=' + encodeURIComponent(videoId)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // Remove video card from DOM
+      btn.closest('.bg-gray-800').remove();
+    }
+  });
+}
+</script>
+{% endblock %} 

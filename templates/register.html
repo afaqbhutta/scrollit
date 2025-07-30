@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Scroll'It - Register</title>
+    <style>
+.checkbox-custom {
+  appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid #4f8cff;
+  border-radius: 4px;
+  background: #18181b;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 0.75rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.checkbox-custom:hover {
+  border-color: #a277f4;
+  transform: scale(1.1);
+}
+.checkbox-custom:checked {
+  border-color: #a277f4;
+  background: #4f8cff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.3);
+}
+.checkbox-custom:checked::after {
+  content: '✓';
+  display: block;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: checkmark 0.2s ease-in-out;
+}
+@keyframes checkmark {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="auth-bg">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <span class="logo-circle">S</span>
+        <span class="logo-title">Scroll'It</span>
+      </div>
+      <h2 class="auth-title">Create your account</h2>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ 'flash-error' if category == 'error' else 'flash-success' }}">
+                {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <form method="POST" id="registerForm" action="/register" class="auth-form" autocomplete="off">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autocomplete="username">
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+
+        <label for="password">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" name="password" required autocomplete="new-password" oninput="validatePassword()">
+          <button type="button" class="toggle-password" tabindex="-1" aria-label="Show password" onclick="togglePassword('password', this)">
+            <!-- Show password icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-400"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" /></svg>
+          </button>
+            </div>
+        <div id="password-strength" class="password-strength"></div>
+
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+          <button type="button" class="toggle-password" tabindex="-1" aria-label="Show password" onclick="togglePassword('confirmPassword', this)">
+            <!-- Hide password icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-400"><path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-18-18ZM22.676 12.553a11.249 11.249 0 0 1-2.631 4.31l-3.099-3.099a5.25 5.25 0 0 0-6.71-6.71L7.759 4.577a11.217 11.217 0 0 1 4.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113Z" /><path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0 1 15.75 12ZM12.53 15.713l-4.243-4.244a3.75 3.75 0 0 0 4.244 4.243Z" /><path d="M6.75 12c0-.619.107-1.213.304-1.764l-3.1-3.1a11.25 11.25 0 0 0-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 0 1 6.75 12Z" /></svg>
+          </button>
+            </div>
+        <div id="password-match" class="password-match"></div>
+            
+        <label class="block text-sm font-medium text-gray-300 mb-3">Register as:</label>
+        <div class="flex gap-6 mb-4">
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" name="userType" value="consumer" class="checkbox-custom">
+            <span class="ml-2 text-white font-medium">Consumer</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" name="userType" value="creator" class="checkbox-custom">
+            <span class="ml-2 text-white font-medium">Creator</span>
+          </label>
+        </div>
+        <button type="submit" class="auth-btn">Sign Up</button>
+      </form>
+      <div class="auth-footer">
+        <span>Already have an account? <a href="/login">Sign in</a></span>
+            </div>
+    </div>
+    <footer class="auth-copyright">&copy; {{ 2024 }} Scroll'It. All rights reserved.</footer>
+    </div>
+    <script>
+    function togglePassword(id, btn) {
+      const input = document.getElementById(id);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.querySelector('svg').innerHTML = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.81 21.81 0 0 1 5.06-6.06M1 1l22 22"/><circle cx="12" cy="12" r="3"/>';
+      } else {
+        input.type = 'password';
+        btn.querySelector('svg').innerHTML = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+    function validatePassword() {
+            const password = document.getElementById('password').value;
+      const strength = document.getElementById('password-strength');
+      const regex = [
+        /.{8,}/,
+        /[A-Z]/,
+        /[a-z]/,
+        /[0-9]/,
+        /[^A-Za-z0-9]/
+      ];
+      let passed = 0;
+      regex.forEach((r) => { if (r.test(password)) passed++; });
+      let msg = '';
+      if (password.length === 0) {
+        msg = '';
+      } else if (passed === 5) {
+        msg = '<span style="color:#4caf50">Strong password</span>';
+      } else {
+        msg = '<span style="color:#ffb300">Password must be at least 8 characters, include upper, lower, number, and special character.</span>';
+      }
+      strength.innerHTML = msg;
+            }
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+      const match = document.getElementById('password').value === this.value;
+      document.getElementById('password-match').innerHTML = match ? '<span style="color:#4caf50">Passwords match</span>' : '<span style="color:#ff4d4f">Passwords do not match</span>';
+        });
+    </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checkboxes = document.querySelectorAll('input[name="userType"]');
+  
+  // Ensure only one can be selected at a time (like radio buttons)
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        // Uncheck all other checkboxes
+        checkboxes.forEach(cb => {
+          if (cb !== this) {
+            cb.checked = false;
+          }
+        });
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

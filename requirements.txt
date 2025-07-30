@@ -1,0 +1,10 @@
+Flask
+Flask-Login
+Flask-SQLAlchemy
+azure-storage-blob
+pyodbc
+gunicorn
+Flask-Session
+pyodbc
+Werkzeug
+Flask-Migrate

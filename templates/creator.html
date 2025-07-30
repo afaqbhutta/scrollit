@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Upload Video | Scroll'It{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-gray-900 rounded-2xl shadow-lg p-6 flex flex-col gap-6">
+  <h2 class="text-2xl font-bold text-white mb-2">Upload Video</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="mb-2 px-4 py-2 rounded-lg text-sm font-medium {{ 'bg-red-500/20 text-red-300' if category == 'error' else 'bg-green-500/20 text-green-300' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <form method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="uploadForm">
+    <div>
+      <label class="block text-sm font-semibold mb-1">Title</label>
+      <input type="text" name="title" required class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Description</label>
+      <textarea name="description" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none resize-none"></textarea>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Publisher</label>
+        <input type="text" name="publisher" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Genre</label>
+        <input type="text" name="genre" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Tags <span class="text-xs text-gray-400">(comma separated)</span></label>
+      <input type="text" name="tags" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Age Rating</label>
+      <select name="age_rating" required class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+        <option value="">Select Rating</option>
+        <option value="G">G</option>
+        <option value="PG">PG</option>
+        <option value="PG-13">PG-13</option>
+        <option value="R">R</option>
+        <option value="18+">18+</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-1">Video File</label>
+      <input type="file" name="video" accept="video/*" required class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none">
+    </div>
+    <div id="progressBarContainer" class="hidden w-full bg-gray-800 rounded-lg h-3 mt-2">
+      <div id="progressBar" class="bg-accent h-3 rounded-lg transition-all duration-300" style="width: 0%"></div>
+    </div>
+    <button type="submit" class="w-full py-2 rounded-lg bg-accent hover:bg-accent2 text-white font-semibold text-lg transition">Upload</button>
+  </form>
+</div>
+<script>
+  // Demo upload progress bar (replace with real AJAX if needed)
+  document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    const bar = document.getElementById('progressBar');
+    const container = document.getElementById('progressBarContainer');
+    container.classList.remove('hidden');
+    let progress = 0;
+    bar.style.width = '0%';
+    const interval = setInterval(() => {
+      progress += 10;
+      bar.style.width = progress + '%';
+      if (progress >= 100) clearInterval(interval);
+    }, 120);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Scroll'It{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            accent: '#4f8cff',
+            accent2: '#a277f4',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col dark">
+  <nav class="sticky top-0 z-30 w-full bg-gray-900/90 backdrop-blur border-b border-gray-800 shadow flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-2 gap-2 sm:gap-0">
+    <div class="flex items-center gap-3 flex-1">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-accent text-white font-bold text-2xl">S</span>
+      <span class="font-bold text-lg tracking-wide">Scroll'It</span>
+      {% if session.get('username') %}
+        <span class="ml-4 text-base text-gray-300 font-semibold hidden sm:inline">Hello, {{ session['username'] }}!</span>
+      {% endif %}
+    </div>
+    <form method="GET" action="/dashboard" class="flex-1 flex items-center max-w-md mx-auto">
+      <input type="text" name="search" placeholder="Search videos..." value="{{ request.args.get('search', '') }}" class="w-full rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-accent focus:outline-none" />
+      <button type="submit" class="ml-2 p-2 rounded-full hover:bg-accent/20 transition">
+        <span class="sr-only">Search</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-accent"><path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clip-rule="evenodd" /></svg>
+      </button>
+    </form>
+    <div class="flex items-center gap-4 flex-1 justify-end">
+      <ul class="flex items-center gap-2">
+        <li class="relative">
+          <button id="notif-bell" class="focus:outline-none">
+            <span id="notif-unread-dot" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+            <svg class="w-6 h-6 text-gray-300 hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+          </button>
+          <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+            <div class="p-4 text-gray-200 font-semibold border-b border-gray-700">Notifications</div>
+            <ul id="notif-list" class="divide-y divide-gray-700"></ul>
+            <div id="notif-empty" class="p-4 text-gray-400 text-center hidden">No notifications</div>
+          </div>
+        </li>
+        <li>
+          {% if session.get('username') %}
+            <div class="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-lg font-bold text-white">{{ session['username'][0]|upper }}</div>
+          {% else %}
+            <div class="w-9 h-9 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-white">?</div>
+          {% endif %}
+        </li>
+        <li><a href="/dashboard" class="hover:text-accent font-medium hidden sm:inline">Feed</a></li>
+        {% if session.get('IsCreator') == 1 %}
+          <li><a href="/creator" class="hover:text-accent font-medium hidden sm:inline">Upload</a></li>
+        {% endif %}
+        <li><a href="/profile" class="hover:text-accent font-medium hidden sm:inline">Profile</a></li>
+        <li><a href="/logout" class="ml-2 px-3 py-1 rounded bg-accent hover:bg-accent2 text-white font-semibold transition hidden sm:inline">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main class="flex-1 w-full max-w-2xl mx-auto px-2 py-4">
+    {% block content %}
+    <!-- Remove any old flash message blocks here, only use toast notifications -->
+    {% endblock %}
+  </main>
+  <footer class="text-center text-gray-500 py-4 text-sm">&copy; {{ 2024 }} Scroll'It. All rights reserved.</footer>
+  <!-- Notification JS -->
+  <script>
+  // Notification dropdown logic
+  const bell = document.getElementById('notif-bell');
+  const dropdown = document.getElementById('notif-dropdown');
+  const notifList = document.getElementById('notif-list');
+  const notifEmpty = document.getElementById('notif-empty');
+  const unreadDot = document.getElementById('notif-unread-dot');
+
+  function fetchNotifications() {
+      fetch('/notifications').then(r => r.json()).then(data => {
+          notifList.innerHTML = '';
+          let unread = false;
+          if (data.success && data.notifications.length) {
+              data.notifications.forEach(n => {
+                  const li = document.createElement('li');
+                  li.className = 'p-3 flex items-center gap-2 ' + (n.is_read ? '' : 'bg-gray-700');
+                  li.innerHTML = `<span class="flex-1">${n.message}</span>` +
+                      (!n.is_read ? `<button class="ml-2 text-xs text-blue-400 underline" onclick="markRead(${n.id}, this)">Mark as read</button>` : '');
+                  notifList.appendChild(li);
+                  if (!n.is_read) unread = true;
+              });
+              notifEmpty.classList.add('hidden');
+          } else {
+              notifEmpty.classList.remove('hidden');
+          }
+          unreadDot.classList.toggle('hidden', !unread);
+      });
+  }
+
+  function markRead(id, btn) {
+      fetch('/mark_notification_read', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'notif_id=' + id
+      }).then(r => r.json()).then(data => {
+          if (data.success) {
+              btn.parentElement.classList.remove('bg-gray-700');
+              btn.remove();
+              fetchNotifications();
+          }
+      });
+  }
+
+  bell.addEventListener('click', e => {
+      e.stopPropagation();
+      dropdown.classList.toggle('hidden');
+      if (!dropdown.classList.contains('hidden')) {
+          fetchNotifications();
+      }
+  });
+  document.addEventListener('click', e => {
+      if (!dropdown.classList.contains('hidden')) {
+          dropdown.classList.add('hidden');
+      }
+  });
+  </script>
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-2"></div>
+  {% set flash_messages = get_flashed_messages(with_categories=true) %}
+  <script>
+  function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition bg-gray-800 text-white border-l-4 ${type === 'error' ? 'border-red-500' : 'border-green-500'}`;
+    toast.textContent = message;
+    document.getElementById('toast-container').appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('opacity-0');
+      setTimeout(() => toast.remove(), 500);
+    }, 3000);
+  }
+  // Show Flask flash messages as toasts
+  window.addEventListener('DOMContentLoaded', function() {
+    var flashMessages = JSON.parse(`{{ flash_messages|tojson|safe }}`);
+    flashMessages.forEach(function(item) {
+      var category = item[0];
+      var message = item[1];
+      showToast(message, category);
+    });
+  });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Your Videos | Scroll'It{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto flex flex-col gap-8">
+  <h2 class="text-2xl font-bold text-white mb-2">Your Uploaded Videos</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="mb-2 px-4 py-2 rounded-lg text-sm font-medium {{ 'bg-red-500/20 text-red-300' if category == 'error' else 'bg-green-500/20 text-green-300' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <div class="flex flex-col gap-6">
+    {% for video in videos %}
+      <div class="bg-gray-900 rounded-2xl shadow-lg p-4 flex flex-col sm:flex-row gap-4 items-center">
+        <div class="w-full sm:w-48 aspect-video bg-black rounded-lg overflow-hidden flex-shrink-0">
+          <video controls class="w-full h-full object-contain bg-black">
+            <source src="{{ video.blob_url }}" type="video/mp4">
+          </video>
+        </div>
+        <div class="flex-1 flex flex-col gap-1">
+          <div class="font-bold text-white text-lg">{{ video.title }}</div>
+          <div class="text-xs text-gray-400">Genre: {{ video.genre or 'N/A' }} &middot; Age: {{ video.age_rating or 'N/A' }}</div>
+          <div class="flex gap-2 mt-2">
+            <form method="POST" action="/edit_video" class="inline">
+              <input type="hidden" name="video_id" value="{{ video.id }}">
+              <button type="submit" class="px-3 py-1 rounded bg-accent hover:bg-accent2 text-white text-xs font-semibold transition flex items-center gap-1">
+                <span class="sr-only">Edit</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-accent"><path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5 5 0 0 0-2.121 1.41l-1.42 1.42a3 3 0 0 0-.674 3.182L2.5 21a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5.172a3 3 0 0 0-.674-3.182l-1.42-1.42a5 5 0 0 0-2.121-1.41l-8.4-8.4 3.712-3.712 8.4 8.4a3 3 0 0 0 3 0z" /></svg>
+                Edit
+              </button>
+            </form>
+            <form method="POST" action="/creator/videos" class="inline">
+              <input type="hidden" name="delete_video_id" value="{{ video.id }}">
+              <button type="submit" class="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition flex items-center gap-1">
+                <span class="sr-only">Delete</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-red-500"><path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" /></svg>
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="text-gray-500 text-sm">No videos uploaded yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
