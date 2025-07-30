@@ -53,8 +53,7 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
-# To create migratiogit pull --rebase
-n for new Notification model:
+# To create migration for new Notification model:
 # flask db init (only once)
 # flask db migrate -m "Add Notification model"
 # flask db upgrade

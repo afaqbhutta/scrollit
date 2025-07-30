@@ -1,1 +1,17 @@
-source .venv/bin/activate
+{
+  "name": "Python Azure SQL Dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {}
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y unixodbc-dev msodbcsql18 gcc g++ python3-dev",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}
